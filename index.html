@@ -20,8 +20,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Color Tool</title>
+    <style>
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 19px;
+
+            width: 100vw;
+            height: 100vh;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: inherit;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: black;
+            display: grid;
+            grid-template: auto 1fr / 1fr;
+
+            width: 100vw;
+            height: 100vh;
+        }
+        main {
+            display: grid;
+            grid-gap: 0.5rem;
+            grid-template: 1fr auto / 1fr auto;
+        }
+        header {
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        article {
+            grid-area: 1 / 1 / 2 / 2;
+
+            display: grid;
+            grid-auto-columns: 1fr;
+            grid-auto-rows: 1fr;
+            grid-gap: 0.5rem;
+        }
+        .new.button {
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            padding: 0 0.5rem;
+        }
+        .new.column.button {
+            grid-area: 1 / 2 / 2 / 3;
+        }
+        .new.row.button {
+            grid-area: 2 / 1 / 3 / 2;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>Color Tool</h1>
+    </header>
+    <main>
+        <article class="palette"></article>
+        <button class="new column button">+</button>
+        <button class="new row button">+</button>
+    </main>
 
+    <!-- Color dependencies -->
+    <script src="https://unpkg.com/chroma-js@2.0.3/chroma.min.js"></script>
+
+    <!-- Compression dependencies -->
+    <script src="https://unpkg.com/pako@1.0.10/dist/pako.min.js"></script>
+
+    <!-- Document manipulation dependencies -->
+    <script src="https://unpkg.com/d3@5.9.2/dist/d3.min.js"></script>
+
+    <!-- Parsing dependencies -->
+    <script src="https://bundle.run/buffer@5.2.1"></script>
+    <script src="https://unpkg.com/parsimmon@1.12.0/build/parsimmon.umd.min.js"></script>
 </body>
 </html>
