@@ -60,6 +60,9 @@
             grid-auto-rows: 1fr;
             grid-gap: 0.5rem;
         }
+        section {
+            background: white;
+        }
         .new.button {
             border: none;
             border-radius: 0.5rem;
@@ -97,5 +100,17 @@
     <!-- Parsing dependencies -->
     <script src="https://bundle.run/buffer@5.2.1"></script>
     <script src="https://unpkg.com/parsimmon@1.12.0/build/parsimmon.umd.min.js"></script>
+
+    <!-- Color Tool application code -->
+    <script>
+        function flatData(data) {
+        }
+
+        function render(data) {
+            const swatches = d3.select(".palette").selectAll("section")
+                .data(flatData(data));
+        }
+        render([ [ null ] ]);
+    </script>
 </body>
 </html>
