@@ -114,7 +114,30 @@
     <script>
         const P = Parsimmon;
         const ColorLanguage = P.createLanguage({
+            LongHex: lang => P.regexp(/#([A-Za-z0-9]{6})/, 1),
+            ShortHex: lang => P.regexp(/#([A-Za-z0-9]{3})/, 1),
+            Hex: lang => P.alt(lang.LongHex, lang.ShortHex)
+                .map(result => [ 'Hex', result ]),
+            NamedColor: lang => P.regexp(/\$([a-z]+)/, 1)
+                .map(result => [ 'NamedColor', result ]),
+            Color: lang => P.alt(lang.Hex, lang.NamedColor),
         });
+
+        function executeSpec(spec) {
+            const [ command, ...args ] = spec;
+            return {
+                Hex: ([ code ]) => chroma(code),
+                NamedColor: ([ name ]) => chroma(name),
+            }[command](args);
+        }
+
+        function parseSpec(spec) {
+            return ColorLanguage.Color.parse(spec);
+        }
+
+        function runSpec(spec) {
+            return executeSpec(parseSpec(spec).value);
+        }
 
         const data = [ [ chroma.random().hex() ] ];
 
@@ -138,6 +161,16 @@
                 title: "Enter color",
                 input: "text",
                 inputValue: data[row][col] || '',
+                inputValidator: value => {
+                    const parsed = parseSpec(value);
+                    if (!parsed.status) return "Bad input";
+                    try {
+                        executeSpec(parsed.value);
+                    }
+                    catch {
+                        return "Bad input";
+                    }
+                },
                 onOpen: modal => selectAllText(
                     d3.select(modal).select("input.swal2-input").node()),
             });
@@ -157,7 +190,7 @@
                 .style("grid-area", ({ row, col }) =>
                     `${row+1} / ${col+1} / ${row+2} / ${col+2}`)
                 .style('background-color', ({ color }) =>
-                    chroma(color).hex())
+                    runSpec(color).hex())
                 .on("click", handleSwatchClick);
         }
         render();
