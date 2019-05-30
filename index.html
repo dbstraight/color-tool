@@ -65,6 +65,10 @@
         }
         .swatch {
             /* border-radius: 0.5rem; */
+            display: flex;
+            font-size: 2rem;
+            align-items: center;
+            justify-content: center;
         }
         .new.button {
             border: none;
@@ -163,6 +167,10 @@
             return flattened;
         }
 
+        function address({ row, col }) {
+            return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[col] + String(row + 1);
+        }
+
         function selectAllText(node) {
             node.setSelectionRange(0, node.value.length);
         }
@@ -193,6 +201,10 @@
                     `${row+1} / ${col+1} / ${row+2} / ${col+2}`)
                 .style('background-color', ({ color }) =>
                     runSpec(color).hex())
+                .style('color', ({ color }) =>
+                    runSpec(color).luminance() > 0.18 ? "black"
+                                                      : "white")
+                .text(address)
                 .on("click", handleSwatchClick);
         }
         render();
