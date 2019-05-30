@@ -125,14 +125,22 @@
             return flattened;
         }
 
+        function selectAllText(node) {
+            node.setSelectionRange(0, node.value.length);
+        }
+
         async function handleSwatchClick({ row, col }) {
             const { value: color } = await Swal.fire({
                 title: "Enter color",
                 input: "text",
                 inputValue: data[row][col] || '',
+                onOpen: modal => selectAllText(
+                    d3.select(modal).select("input.swal2-input").node()),
             });
+            if (color) {
             data[row][col] = color;
             render();
+        }
         }
 
         function render() {
