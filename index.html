@@ -112,6 +112,10 @@
 
     <!-- Color Tool application code -->
     <script>
+        const P = Parsimmon;
+        const ColorLanguage = P.createLanguage({
+        });
+
         const data = [ [ chroma.random().hex() ] ];
 
         function flatData() {
@@ -138,9 +142,9 @@
                     d3.select(modal).select("input.swal2-input").node()),
             });
             if (color) {
-            data[row][col] = color;
-            render();
-        }
+                data[row][col] = color;
+                render();
+            }
         }
 
         function render() {
