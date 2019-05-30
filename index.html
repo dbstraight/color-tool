@@ -139,6 +139,17 @@
             return executeSpec(parseSpec(spec).value);
         }
 
+        function validateSpec(spec) {
+            const parsed = parseSpec(spec);
+            if (!parsed.status) return "Bad input";
+            try {
+                executeSpec(parsed.value);
+            }
+            catch {
+                return "Bad input";
+            }
+        }
+
         const data = [ [ chroma.random().hex() ] ];
 
         function flatData() {
@@ -161,16 +172,7 @@
                 title: "Enter color",
                 input: "text",
                 inputValue: data[row][col] || '',
-                inputValidator: value => {
-                    const parsed = parseSpec(value);
-                    if (!parsed.status) return "Bad input";
-                    try {
-                        executeSpec(parsed.value);
-                    }
-                    catch {
-                        return "Bad input";
-                    }
-                },
+                inputValidator: validateSpec,
                 onOpen: modal => selectAllText(
                     d3.select(modal).select("input.swal2-input").node()),
             });
