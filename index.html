@@ -69,6 +69,7 @@
             font-size: 2rem;
             align-items: center;
             justify-content: center;
+            text-align: center;
         }
         .new.button {
             border: none;
@@ -239,7 +240,7 @@
                 return addr;
             }
             else {
-                return `${addr} ${String(result)}`;
+                return `${addr}<br>${String(result)}`;
             }
         }
 
@@ -254,7 +255,7 @@
                     `${row+1} / ${col+1} / ${row+2} / ${col+2}`)
                 .style('background-color', swatchBackgroundColor)
                 .style('color', swatchColor)
-                .text(swatchText)
+                .html(swatchText)
                 .on("click", handleSwatchClick);
         }
         render();
