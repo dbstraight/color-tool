@@ -214,6 +214,35 @@
             }
         }
 
+        function swatchBackgroundColor({ color }) {
+            const result = runSpec(color);
+            if (result instanceof chroma.Color) {
+                return result.hex();
+            }
+            return "black";
+        }
+
+        function swatchColor({ color }) {
+            const result = runSpec(color);
+            if (result instanceof chroma.Color) {
+                return result.luminance() > 0.18
+                    ? "black"
+                    : "white";
+            }
+            return "white";
+        }
+
+        function swatchText({ row, col, color }) {
+            const addr = address({ row, col });
+            const result = runSpec(color);
+            if (result instanceof chroma.Color) {
+                return addr;
+            }
+            else {
+                return `${addr} ${String(result)}`;
+            }
+        }
+
         function render() {
             const swatches = d3.select(".palette").selectAll(".swatch")
                 .data(flatData());
@@ -223,12 +252,9 @@
               .merge(swatches)
                 .style("grid-area", ({ row, col }) =>
                     `${row+1} / ${col+1} / ${row+2} / ${col+2}`)
-                .style('background-color', ({ color }) =>
-                    runSpec(color).hex())
-                .style('color', ({ color }) =>
-                    runSpec(color).luminance() > 0.18 ? "black"
-                                                      : "white")
-                .text(address)
+                .style('background-color', swatchBackgroundColor)
+                .style('color', swatchColor)
+                .text(swatchText)
                 .on("click", handleSwatchClick);
         }
         render();
