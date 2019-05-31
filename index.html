@@ -183,6 +183,10 @@
                 color.get(channel.replace('-', '.')),
             set: ([ color, channel, value ]) =>
                 color.set(channel.replace('-', '.'), value),
+            rgb: ([ r, g, b ]) =>
+                chroma.rgb(r, g, b),
+            hsl: ([ h, s, l ]) =>
+                chroma.hsl(h, s, l),
         };
 
         function executeSpec(spec) {
