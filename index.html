@@ -141,7 +141,29 @@
                     P.string(',').trim(P.optWhitespace)),
                 P.string(')').trim(P.optWhitespace),
                 (id, _lParen, args, _rParen) => [ 'Function', id, args ]),
+            MathTerm: lang => P.alt(
+                P.seqMap(
+                    P.string('(').trim(P.optWhitespace),
+                    lang.MathExpression,
+                    P.string(')').trim(P.optWhitespace),
+                    (_lParen, expression, _rParen) => expression),
+                lang.NumberLiteral,
+                lang.FunctionCall),
+            MathMul: lang => P.seqMap(
+                lang.MathTerm,
+                P.seq(P.oneOf('*/').trim(P.optWhitespace), lang.MathTerm).many(),
+                (first, rest) => rest.reduce(
+                    (acc, cur) => [ cur[0], acc, cur[1] ],
+                    first)),
+            MathAdd: lang => P.seqMap(
+                lang.MathMul,
+                P.seq(P.oneOf('+-').trim(P.optWhitespace), lang.MathMul).many(),
+                (first, rest) => rest.reduce(
+                    (acc, cur) => [ cur[0], acc, cur[1] ],
+                    first)),
+            MathExpression: lang => lang.MathAdd,
             Expression: lang => P.alt(
+                lang.MathExpression,
                 lang.ColorLiteral,
                 lang.NumberLiteral,
                 lang.SymbolLiteral,
@@ -161,6 +183,10 @@
                 Hex: ([ code ]) => chroma(code),
                 NamedColor: ([ name ]) => chroma(name),
                 Function: ([ id, args ]) => ColorFunction[id](args.map(executeSpec)),
+                "+": ([ a, b ]) => executeSpec(a) + executeSpec(b),
+                "-": ([ a, b ]) => executeSpec(a) - executeSpec(b),
+                "*": ([ a, b ]) => executeSpec(a) * executeSpec(b),
+                "/": ([ a, b ]) => executeSpec(a) / executeSpec(b),
             }[command](args);
         }
 
