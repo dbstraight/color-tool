@@ -148,6 +148,7 @@
                     P.string(')').trim(P.optWhitespace),
                     (_lParen, expression, _rParen) => expression),
                 lang.NumberLiteral,
+                lang.Reference,
                 lang.FunctionCall),
             MathMul: lang => P.seqMap(
                 lang.MathTerm,
@@ -162,9 +163,17 @@
                     (acc, cur) => [ cur[0], acc, cur[1] ],
                     first)),
             MathExpression: lang => lang.MathAdd,
+            Reference: lang => P.seqMap(
+                P.string('$'),
+                P.regexp(/[A-Z]+/)
+                    .map(result => "ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(result)),
+                P.regexp(/[1-9][0-9]*/)
+                    .map(result => Number(result) - 1),
+                (_dollar, col, row) => [ 'Reference', row, col ]),
             Expression: lang => P.alt(
                 lang.MathExpression,
                 lang.ColorLiteral,
+                lang.Reference,
                 lang.NumberLiteral,
                 lang.SymbolLiteral,
                 lang.FunctionCall)
@@ -183,6 +192,7 @@
                 Hex: ([ code ]) => chroma(code),
                 NamedColor: ([ name ]) => chroma(name),
                 Function: ([ id, args ]) => ColorFunction[id](args.map(executeSpec)),
+                Reference: ([ row, col ]) => runSpec(data[row][col]),
                 "+": ([ a, b ]) => executeSpec(a) + executeSpec(b),
                 "-": ([ a, b ]) => executeSpec(a) - executeSpec(b),
                 "*": ([ a, b ]) => executeSpec(a) * executeSpec(b),
