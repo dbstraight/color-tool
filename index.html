@@ -124,19 +124,43 @@
                 .map(result => [ 'Hex', result ]),
             NamedColor: lang => P.regexp(/\$([a-z]+)/, 1)
                 .map(result => [ 'NamedColor', result ]),
-            Color: lang => P.alt(lang.Hex, lang.NamedColor),
+            ColorLiteral: lang => P.alt(lang.Hex, lang.NamedColor),
+            NumberLiteral: lang => P.regexp(/-?(0|[1-9][0-9]*)(\.[0-9]+)?/)
+                .map(Number),
+            Identifier: lang => P.regexp(/[a-z-]+/),
+            SymbolLiteral: lang => P.seqMap(
+                P.string(":"),
+                lang.Identifier,
+                (_colon, id) => id),
+            FunctionCall: lang => P.seqMap(
+                lang.Identifier,
+                P.string('(').trim(P.optWhitespace),
+                P.sepBy1(
+                    lang.Expression,
+                    P.string(',').trim(P.optWhitespace)),
+                P.string(')').trim(P.optWhitespace),
+                (id, _lParen, args, _rParen) => [ 'Function', id, args ]),
+            Expression: lang => P.alt(
+                lang.ColorLiteral,
+                lang.NumberLiteral,
+                lang.SymbolLiteral,
+                lang.FunctionCall)
         });
+        const ColorFunction = {
+        };
 
         function executeSpec(spec) {
+            if (!Array.isArray(spec)) return spec;
             const [ command, ...args ] = spec;
             return {
                 Hex: ([ code ]) => chroma(code),
                 NamedColor: ([ name ]) => chroma(name),
+                Function: ([ id, args ]) => ColorFunction[id](args.map(executeSpec)),
             }[command](args);
         }
 
         function parseSpec(spec) {
-            return ColorLanguage.Color.parse(spec);
+            return ColorLanguage.Expression.parse(spec);
         }
 
         function runSpec(spec) {
