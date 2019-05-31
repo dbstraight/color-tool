@@ -148,6 +148,10 @@
                 lang.FunctionCall)
         });
         const ColorFunction = {
+            get: ([ color, channel ]) =>
+                color.get(channel.replace('-', '.')),
+            set: ([ color, channel, value ]) =>
+                color.set(channel.replace('-', '.'), value),
         };
 
         function executeSpec(spec) {
