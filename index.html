@@ -229,6 +229,20 @@
                 chroma.rgb(r, g, b),
             hsl: ([ h, s, l ]) =>
                 chroma.hsl(h, s, l),
+            hcl: ([ h, c, l ]) =>
+                chroma.hcl(h, c, l),
+            "set-max": ([ color, channel ]) => {
+                const [ colorSpace, chan ] = channel.split('-');
+                const pos = colorSpace.indexOf(chan);
+                const channels = color[colorSpace]();
+                let newColor = chroma[colorSpace](...channels);
+                while (!newColor.clipped()) {
+                    channels[pos] += 1;
+                    newColor = chroma[colorSpace](...channels);
+                }
+                channels[pos] -= 1;
+                return chroma[colorSpace](channels);
+            },
         };
 
         function executeSpec(spec) {
