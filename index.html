@@ -117,6 +117,42 @@
 
     <!-- Color Tool application code -->
     <script>
+        const data = [ [ '#000000' ] ];
+
+        function packedState() {
+            const stateString = JSON.stringify(data);
+            const pakoOptions = { to: 'string' };
+            return btoa(pako.deflate(stateString, pakoOptions));
+        }
+
+        function unpackState(packed) {
+            try {
+                const pakoOptions = { to: 'string' };
+                const stateString = pako.inflate(atob(packed), pakoOptions);
+                return JSON.parse(stateString);
+            }
+            catch {
+                return undefined;
+            }
+        }
+
+        function pushState() {
+            const state = packedState();
+            if (document.location.hash === '#' + state) {
+                return;
+            }
+            const url = document.location.pathname + '#' + state;
+            history.pushState(null, null, url);
+        }
+
+        function restoreState() {
+            const state = unpackState(document.location.hash.substring(1));
+            if (state) {
+                data.splice(0, data.length, ...state);
+                render();
+            }
+        }
+
         const P = Parsimmon;
         const ColorLanguage = P.createLanguage({
             LongHex: lang => P.regexp(/#([A-Za-z0-9]{6})/, 1),
@@ -230,8 +266,6 @@
             }
         }
 
-        const data = [ [ chroma.random().hex() ] ];
-
         function flatData() {
             const flattened = [];
             for (let row = 0; row < data.length; row++) {
@@ -288,7 +322,7 @@
             const addr = address({ row, col });
             const result = runSpec(color);
             if (result instanceof chroma.Color) {
-                return addr;
+                return `${addr}<br>${String(result.hex())}`;
             }
             else {
                 return `${addr}<br>${String(result)}`;
@@ -297,7 +331,9 @@
 
         function render() {
             const swatches = d3.select(".palette").selectAll(".swatch")
-                .data(flatData());
+                .data(flatData(), ({ row, col }) => `(${row}, ${col})`);
+
+            swatches.exit().remove();
 
             swatches.enter().append("section")
                 .attr("class", "swatch")
@@ -308,21 +344,27 @@
                 .style('color', swatchColor)
                 .html(swatchText)
                 .on("click", handleSwatchClick);
+
+            pushState();
         }
-        render();
 
         d3.select(".new.column.button").on("click", () => {
             for (const rowData of data) {
-                rowData.push(chroma.random().hex());
+                rowData.push('#000000');
             }
             render();
         });
 
         d3.select(".new.row.button").on("click", () => {
             data.push(Array(data[0].length).fill(null)
-                .map(_ => chroma.random().hex()));
+                .map(_ => '#000000'));
             render();
         });
+
+        window.addEventListener("hashchange", () => restoreState());
+
+        restoreState();
+        render();
     </script>
 </body>
 </html>
