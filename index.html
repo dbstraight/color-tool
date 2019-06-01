@@ -150,9 +150,15 @@
                 lang.NumberLiteral,
                 lang.Reference,
                 lang.FunctionCall),
-            MathMul: lang => P.seqMap(
+            MathExp: lang => P.seqMap(
                 lang.MathTerm,
-                P.seq(P.oneOf('*/').trim(P.optWhitespace), lang.MathTerm).many(),
+                P.seq(P.oneOf('^').trim(P.optWhitespace), lang.MathTerm).many(),
+                (first, rest) => rest.reduce(
+                    (acc, cur) => [ cur[0], acc, cur[1] ],
+                    first)),
+            MathMul: lang => P.seqMap(
+                lang.MathExp,
+                P.seq(P.oneOf('*/').trim(P.optWhitespace), lang.MathExp).many(),
                 (first, rest) => rest.reduce(
                     (acc, cur) => [ cur[0], acc, cur[1] ],
                     first)),
@@ -201,6 +207,7 @@
                 "-": ([ a, b ]) => executeSpec(a) - executeSpec(b),
                 "*": ([ a, b ]) => executeSpec(a) * executeSpec(b),
                 "/": ([ a, b ]) => executeSpec(a) / executeSpec(b),
+                "^": ([ a, b ]) => Math.pow(executeSpec(a), executeSpec(b)),
             }[command](args);
         }
 
